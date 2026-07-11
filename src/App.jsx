@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Home, BookOpen, Palette, Lock, Instagram, Phone, MapPin, Globe,
-  Leaf, Plus, Trash2, Save, RotateCcw, Check, ChevronDown, ChevronUp, X
+  Leaf, Plus, Trash2, Save, RotateCcw, Check, ChevronDown, ChevronUp, X, Image as ImageIcon
 } from "lucide-react";
 import { supabase } from "./lib/supabaseClient";
 import { RESTAURANT_SLUG, STAFF_PIN } from "./config";
@@ -25,63 +25,63 @@ const DEFAULT_DATA = {
       id: "antipasti", numeral: "I", title: "Antipasti",
       subtitle: "To start, while the bread is still warm",
       items: [
-        { id: uid(), name: "Burrata Pugliese", desc: "Creamy burrata, heirloom tomato, basil oil, Maldon salt, grilled sourdough", price: "19", veg: true },
-        { id: uid(), name: "Carpaccio di Manzo", desc: "Thin-sliced raw beef tenderloin, arugula, shaved grana padano, lemon-caper dressing", price: "21", veg: false },
-        { id: uid(), name: "Arancini al Limone", desc: "Saffron rice, mozzarella, preserved lemon, fried golden, whipped ricotta", price: "16", veg: true },
-        { id: uid(), name: "Bruschetta al Pomodoro", desc: "Charred country bread, San Marzano tomato, garlic, basil, extra virgin olive oil", price: "14", veg: true },
-        { id: uid(), name: "Insalata di Mare", desc: "Chilled octopus, shrimp, calamari, celery, lemon, chili, parsley", price: "22", veg: false },
+        { id: uid(), name: "Burrata Pugliese", desc: "Creamy burrata, heirloom tomato, basil oil, Maldon salt, grilled sourdough", price: "19", veg: true, image: ""  },
+        { id: uid(), name: "Carpaccio di Manzo", desc: "Thin-sliced raw beef tenderloin, arugula, shaved grana padano, lemon-caper dressing", price: "21", veg: false, image: ""  },
+        { id: uid(), name: "Arancini al Limone", desc: "Saffron rice, mozzarella, preserved lemon, fried golden, whipped ricotta", price: "16", veg: true, image: ""  },
+        { id: uid(), name: "Bruschetta al Pomodoro", desc: "Charred country bread, San Marzano tomato, garlic, basil, extra virgin olive oil", price: "14", veg: true, image: ""  },
+        { id: uid(), name: "Insalata di Mare", desc: "Chilled octopus, shrimp, calamari, celery, lemon, chili, parsley", price: "22", veg: false, image: ""  },
       ],
     },
     {
       id: "primi", numeral: "II", title: "Primi",
       subtitle: "Pasta and rice, made fresh each morning",
       items: [
-        { id: uid(), name: "Spaghetti alle Vongole", desc: "Manila clams, white wine, garlic, chili flake, parsley, bottarga", price: "27", veg: false },
-        { id: uid(), name: "Risotto ai Limoni di Amalfi", desc: "Carnaroli rice, Amalfi lemon zest, mascarpone, aged parmesan, cracked pepper", price: "25", veg: true },
-        { id: uid(), name: "Tagliatelle al Tartufo", desc: "Egg tagliatelle, brown butter, black winter truffle, parmigiano reggiano", price: "30", veg: true },
-        { id: uid(), name: "Orecchiette con Cime di Rapa", desc: "Hand-shaped orecchiette, broccoli rabe, anchovy, garlic, chili, pecorino", price: "23", veg: false },
-        { id: uid(), name: "Ravioli di Ricotta e Spinaci", desc: "House-made ravioli, sage burnt butter, toasted walnut, nutmeg", price: "24", veg: true },
+        { id: uid(), name: "Spaghetti alle Vongole", desc: "Manila clams, white wine, garlic, chili flake, parsley, bottarga", price: "27", veg: false, image: ""  },
+        { id: uid(), name: "Risotto ai Limoni di Amalfi", desc: "Carnaroli rice, Amalfi lemon zest, mascarpone, aged parmesan, cracked pepper", price: "25", veg: true, image: ""  },
+        { id: uid(), name: "Tagliatelle al Tartufo", desc: "Egg tagliatelle, brown butter, black winter truffle, parmigiano reggiano", price: "30", veg: true, image: ""  },
+        { id: uid(), name: "Orecchiette con Cime di Rapa", desc: "Hand-shaped orecchiette, broccoli rabe, anchovy, garlic, chili, pecorino", price: "23", veg: false, image: ""  },
+        { id: uid(), name: "Ravioli di Ricotta e Spinaci", desc: "House-made ravioli, sage burnt butter, toasted walnut, nutmeg", price: "24", veg: true, image: ""  },
       ],
     },
     {
       id: "secondi", numeral: "III", title: "Secondi",
       subtitle: "From the wood grill and the copper pan",
       items: [
-        { id: uid(), name: "Branzino al Forno", desc: "Whole roasted Mediterranean sea bass, cherry tomato, olive, oregano, lemon", price: "36", veg: false },
-        { id: uid(), name: "Pollo al Limone", desc: "Half chicken under a brick, charred lemon, rosemary, pan jus", price: "29", veg: false },
-        { id: uid(), name: "Saltimbocca alla Romana", desc: "Veal scaloppine, prosciutto di Parma, sage, white wine butter sauce", price: "32", veg: false },
-        { id: uid(), name: "Osso Buco", desc: "Braised veal shank, saffron risotto milanese, gremolata", price: "38", veg: false },
-        { id: uid(), name: "Tagliata di Manzo", desc: "Sliced grilled striploin, arugula, shaved parmesan, aged balsamic", price: "41", veg: false },
+        { id: uid(), name: "Branzino al Forno", desc: "Whole roasted Mediterranean sea bass, cherry tomato, olive, oregano, lemon", price: "36", veg: false, image: ""  },
+        { id: uid(), name: "Pollo al Limone", desc: "Half chicken under a brick, charred lemon, rosemary, pan jus", price: "29", veg: false, image: ""  },
+        { id: uid(), name: "Saltimbocca alla Romana", desc: "Veal scaloppine, prosciutto di Parma, sage, white wine butter sauce", price: "32", veg: false, image: ""  },
+        { id: uid(), name: "Osso Buco", desc: "Braised veal shank, saffron risotto milanese, gremolata", price: "38", veg: false, image: ""  },
+        { id: uid(), name: "Tagliata di Manzo", desc: "Sliced grilled striploin, arugula, shaved parmesan, aged balsamic", price: "41", veg: false, image: ""  },
       ],
     },
     {
       id: "contorni", numeral: "IV", title: "Contorni",
       subtitle: "On the side",
       items: [
-        { id: uid(), name: "Patate Arrosto", desc: "Rosemary roasted potatoes, garlic, sea salt", price: "9", veg: true },
-        { id: uid(), name: "Verdure Grigliate", desc: "Grilled seasonal vegetables, olive oil, aged balsamic", price: "11", veg: true },
-        { id: uid(), name: "Insalata Verde", desc: "Little gem lettuce, shallot vinaigrette, shaved fennel", price: "9", veg: true },
+        { id: uid(), name: "Patate Arrosto", desc: "Rosemary roasted potatoes, garlic, sea salt", price: "9", veg: true, image: ""  },
+        { id: uid(), name: "Verdure Grigliate", desc: "Grilled seasonal vegetables, olive oil, aged balsamic", price: "11", veg: true, image: ""  },
+        { id: uid(), name: "Insalata Verde", desc: "Little gem lettuce, shallot vinaigrette, shaved fennel", price: "9", veg: true, image: ""  },
       ],
     },
     {
       id: "dolci", numeral: "V", title: "Dolci",
       subtitle: "To finish, with an espresso",
       items: [
-        { id: uid(), name: "Delizia al Limone", desc: "Sponge cake soaked in limoncello, lemon cream, candied Sorrento lemon", price: "13", veg: true },
-        { id: uid(), name: "Tiramisù", desc: "Espresso-soaked savoiardi, mascarpone cream, cocoa", price: "12", veg: true },
-        { id: uid(), name: "Cannoli Siciliani", desc: "Crisp shells, sweet ricotta, candied orange, pistachio", price: "12", veg: true },
-        { id: uid(), name: "Panna Cotta", desc: "Vanilla bean panna cotta, blood orange, basil syrup", price: "11", veg: true },
+        { id: uid(), name: "Delizia al Limone", desc: "Sponge cake soaked in limoncello, lemon cream, candied Sorrento lemon", price: "13", veg: true, image: ""  },
+        { id: uid(), name: "Tiramisù", desc: "Espresso-soaked savoiardi, mascarpone cream, cocoa", price: "12", veg: true, image: ""  },
+        { id: uid(), name: "Cannoli Siciliani", desc: "Crisp shells, sweet ricotta, candied orange, pistachio", price: "12", veg: true, image: ""  },
+        { id: uid(), name: "Panna Cotta", desc: "Vanilla bean panna cotta, blood orange, basil syrup", price: "11", veg: true, image: ""  },
       ],
     },
     {
       id: "bevande", numeral: "VI", title: "Bevande",
       subtitle: "Wine, spritz, and something cold",
       items: [
-        { id: uid(), name: "Limoncello Spritz", desc: "House limoncello, prosecco, soda, mint", price: "15", veg: false },
-        { id: uid(), name: "Aperol Spritz", desc: "Aperol, prosecco, soda, orange", price: "15", veg: false },
-        { id: uid(), name: "Negroni", desc: "Gin, Campari, sweet vermouth, orange peel", price: "17", veg: false },
-        { id: uid(), name: "Vino della Casa", desc: "Rotating red or white by the glass or bottle — ask your server", price: "14 / 52", veg: false },
-        { id: uid(), name: "Acqua Panna & San Pellegrino", desc: "Still or sparkling, 750ml", price: "7", veg: false },
+        { id: uid(), name: "Limoncello Spritz", desc: "House limoncello, prosecco, soda, mint", price: "15", veg: false, image: ""  },
+        { id: uid(), name: "Aperol Spritz", desc: "Aperol, prosecco, soda, orange", price: "15", veg: false, image: ""  },
+        { id: uid(), name: "Negroni", desc: "Gin, Campari, sweet vermouth, orange peel", price: "17", veg: false, image: ""  },
+        { id: uid(), name: "Vino della Casa", desc: "Rotating red or white by the glass or bottle — ask your server", price: "14 / 52", veg: false, image: ""  },
+        { id: uid(), name: "Acqua Panna & San Pellegrino", desc: "Still or sparkling, 750ml", price: "7", veg: false, image: ""  },
       ],
     },
   ],
@@ -199,7 +199,7 @@ export default function App() {
       ...d,
       categories: d.categories.map((c) =>
         c.id === catId
-          ? { ...c, items: [...c.items, { id: uid(), name: "New dish", desc: "Description", price: "0", veg: false }] }
+          ? { ...c, items: [...c.items, { id: uid(), name: "New dish", desc: "Description", price: "0", veg: false, image: "" }] }
           : c
       ),
     }));
@@ -242,8 +242,13 @@ export default function App() {
         .limo-navlink.active { opacity:1; background: ${alpha('ivory', 0.12)}; border-color: ${alpha('ivory', 0.4)}; }
         .limo-cattab { font-family:${fonts.mono}; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; padding:9px 16px; border-radius:999px; border:1px solid ${colors.bottle}33; background:transparent; color:${colors.bottle}; cursor:pointer; white-space:nowrap; }
         .limo-cattab.active { background:${colors.bottle}; color:${colors.ivory}; border-color:${colors.bottle}; }
-        .limo-dish { display:grid; grid-template-columns: 1fr auto; gap: 4px 18px; padding: 16px 0; border-bottom: 1px dotted ${alpha('bottle', 0.25)}; }
+        .limo-dish { display:flex; align-items:flex-start; gap: 16px; padding: 16px 0; border-bottom: 1px dotted ${alpha('bottle', 0.25)}; }
         .limo-dish:last-child { border-bottom: none; }
+        .limo-dish-photo { width:72px; height:72px; border-radius:10px; object-fit:cover; flex-shrink:0; background:${alpha('bottle', 0.06)}; }
+        .limo-dish-photo-empty { display:none; }
+        .limo-dish-body { flex:1; min-width:0; }
+        .limo-dish-row { display:flex; justify-content:space-between; align-items:baseline; gap:14px; }
+        @media (max-width: 480px) { .limo-dish-photo:not(.limo-dish-photo-empty) { width:56px; height:56px; } }
         .limo-input { font-family:${fonts.body}; font-size:15px; padding:7px 9px; border:1px solid ${colors.bottle}44; border-radius:6px; background:#fff; color:${colors.ink}; width:100%; }
         .limo-btn { font-family:${fonts.mono}; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; padding:9px 16px; border-radius:8px; border:1px solid ${colors.bottle}; background:${colors.bottle}; color:${colors.ivory}; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
         .limo-btn.ghost { background:transparent; color:${colors.bottle}; }
@@ -337,12 +342,26 @@ export default function App() {
 
                 {activeCategory.items.map((it) => (
                   <div className="limo-dish" key={it.id}>
-                    <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>
-                      {it.name}
-                      {it.veg && <Leaf size={13} style={{ marginLeft: 8, verticalAlign: "middle", color: colors.bottle }} />}
-                    </h3>
-                    <span style={{ fontFamily: fonts.mono, fontSize: 15, color: colors.terracotta, whiteSpace: "nowrap" }}>${it.price}</span>
-                    <p style={{ gridColumn: "1 / 2", fontSize: 15, color: alpha('ink', 0.62), margin: "3px 0 0", maxWidth: "46ch" }}>{it.desc}</p>
+                    {it.image ? (
+                      <img
+                        src={it.image}
+                        alt={it.name}
+                        className="limo-dish-photo"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                    ) : (
+                      <div className="limo-dish-photo limo-dish-photo-empty" aria-hidden="true" />
+                    )}
+                    <div className="limo-dish-body">
+                      <div className="limo-dish-row">
+                        <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>
+                          {it.name}
+                          {it.veg && <Leaf size={13} style={{ marginLeft: 8, verticalAlign: "middle", color: colors.bottle }} />}
+                        </h3>
+                        <span style={{ fontFamily: fonts.mono, fontSize: 15, color: colors.terracotta, whiteSpace: "nowrap" }}>${it.price}</span>
+                      </div>
+                      <p style={{ fontSize: 15, color: alpha('ink', 0.62), margin: "3px 0 0", maxWidth: "46ch" }}>{it.desc}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -493,14 +512,28 @@ export default function App() {
                           <input className="limo-input" value={cat.subtitle} onChange={(e) => updateCategoryField(cat.id, "subtitle", e.target.value)} placeholder="Category subtitle" />
                         </div>
                         {cat.items.map((it) => (
-                          <div key={it.id} style={{ display: "grid", gridTemplateColumns: "2fr 3fr 80px auto auto", gap: 8, alignItems: "center", marginBottom: 8 }}>
-                            <input className="limo-input" value={it.name} onChange={(e) => updateItem(cat.id, it.id, "name", e.target.value)} placeholder="Dish name" />
-                            <input className="limo-input" value={it.desc} onChange={(e) => updateItem(cat.id, it.id, "desc", e.target.value)} placeholder="Description" />
-                            <input className="limo-input" value={it.price} onChange={(e) => updateItem(cat.id, it.id, "price", e.target.value)} placeholder="Price" />
-                            <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: alpha('ink', 0.6) }}>
-                              <input type="checkbox" checked={it.veg} onChange={(e) => updateItem(cat.id, it.id, "veg", e.target.checked)} /> Veg
-                            </label>
-                            <button onClick={() => removeItem(cat.id, it.id)} style={{ background: "none", border: "none", cursor: "pointer", color: colors.terracotta }}><Trash2 size={16} /></button>
+                          <div key={it.id} style={{ border: `1px solid ${alpha('bottle', 0.12)}`, borderRadius: 8, padding: 10, marginBottom: 8 }}>
+                            <div style={{ display: "flex", gap: 10 }}>
+                              {it.image ? (
+                                <img src={it.image} alt="" style={{ width: 52, height: 52, borderRadius: 6, objectFit: "cover", flexShrink: 0, background: alpha('bottle', 0.06) }} onError={(e) => { e.currentTarget.style.opacity = 0.2; }} />
+                              ) : (
+                                <div style={{ width: 52, height: 52, borderRadius: 6, flexShrink: 0, background: alpha('bottle', 0.06), display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                  <ImageIcon size={18} style={{ color: alpha('ink', 0.3) }} />
+                                </div>
+                              )}
+                              <div style={{ flex: 1, display: "grid", gridTemplateColumns: "2fr 3fr 80px auto", gap: 8, alignItems: "center" }}>
+                                <input className="limo-input" value={it.name} onChange={(e) => updateItem(cat.id, it.id, "name", e.target.value)} placeholder="Dish name" />
+                                <input className="limo-input" value={it.desc} onChange={(e) => updateItem(cat.id, it.id, "desc", e.target.value)} placeholder="Description" />
+                                <input className="limo-input" value={it.price} onChange={(e) => updateItem(cat.id, it.id, "price", e.target.value)} placeholder="Price" />
+                                <button onClick={() => removeItem(cat.id, it.id)} style={{ background: "none", border: "none", cursor: "pointer", color: colors.terracotta }}><Trash2 size={16} /></button>
+                              </div>
+                            </div>
+                            <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8, paddingLeft: 62 }}>
+                              <input className="limo-input" value={it.image || ""} onChange={(e) => updateItem(cat.id, it.id, "image", e.target.value)} placeholder="Photo URL (optional) — paste an image link" style={{ flex: 1 }} />
+                              <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: alpha('ink', 0.6), whiteSpace: "nowrap" }}>
+                                <input type="checkbox" checked={it.veg} onChange={(e) => updateItem(cat.id, it.id, "veg", e.target.checked)} /> Veg
+                              </label>
+                            </div>
                           </div>
                         ))}
                         <button className="limo-btn ghost" style={{ marginTop: 8 }} onClick={() => addItem(cat.id)}><Plus size={13} /> Add dish</button>
