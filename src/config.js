@@ -11,4 +11,4 @@ export const RESTAURANT_SLUG = "limo-ristorante";
 // not real security — anyone with the anon Supabase key could write
 // to the table directly. See README.md "Security notes" before
 // selling this for a client who cares about that.
-export const STAFF_PIN = "1234";
+export const STAFF_PIN = "543276467";
