@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Home, BookOpen, Palette, Lock, Instagram, Phone, MapPin, Globe,
-  Leaf, Plus, Trash2, Save, RotateCcw, Check, ChevronDown, ChevronUp, X, Image as ImageIcon
+  Leaf, Plus, Trash2, Save, RotateCcw, Check, ChevronDown, ChevronUp, X, Image as ImageIcon,
+  Minus, ShoppingCart, Send
 } from "lucide-react";
 import { supabase } from "./lib/supabaseClient";
 import { RESTAURANT_SLUG, STAFF_PIN } from "./config";
@@ -20,6 +21,7 @@ const DEFAULT_DATA = {
     address: "184 Ossington Ave, Toronto, ON",
     instagram: "@limo.ristorante",
     website: "limoristorante.com",
+    whatsapp: "", // digits only with country code, e.g. "14165550182" — leave blank to hide ordering
   },
   categories: [
     {
@@ -124,6 +126,7 @@ export default function App() {
   const [pinError, setPinError] = useState(false);
   const [saveStatus, setSaveStatus] = useState("idle");
   const [openCat, setOpenCat] = useState("antipasti");
+  const [cart, setCart] = useState({}); // { itemId: quantity }
 
   useEffect(() => {
     (async () => {
@@ -224,6 +227,70 @@ export default function App() {
 
   const activeCategory = data.categories.find((c) => c.id === activeCat) || data.categories[0];
 
+  // ---------------- Cart / WhatsApp ordering ----------------
+
+  const cartStorageKey = `menu-cart-${RESTAURANT_SLUG}`;
+
+  useEffect(() => {
+    if (loading) return;
+    try {
+      const saved = window.localStorage.getItem(cartStorageKey);
+      if (saved) setCart(JSON.parse(saved));
+    } catch (e) {
+      // ignore — cart just starts empty
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(cartStorageKey, JSON.stringify(cart));
+    } catch (e) {
+      // storage unavailable (e.g. private browsing) — cart still works, just won't persist
+    }
+  }, [cart]);
+
+  const allItems = data.categories.flatMap((c) => c.items);
+
+  const setQty = (itemId, qty) => {
+    setCart((c) => {
+      const next = { ...c };
+      if (qty <= 0) {
+        delete next[itemId];
+      } else {
+        next[itemId] = qty;
+      }
+      return next;
+    });
+  };
+
+  const cartEntries = Object.entries(cart)
+    .map(([itemId, qty]) => ({ item: allItems.find((it) => it.id === itemId), qty }))
+    .filter((e) => e.item && e.qty > 0);
+
+  const cartCount = cartEntries.reduce((sum, e) => sum + e.qty, 0);
+  const cartTotal = cartEntries.reduce((sum, e) => sum + (parseFloat(e.item.price) || 0) * e.qty, 0);
+
+  const clearCart = () => setCart({});
+
+  const buildWhatsAppMessage = () => {
+    const lines = [`Hi ${data.brand.name}! I'd like to order:`, ""];
+    cartEntries.forEach((e) => {
+      lines.push(`• ${e.qty}x ${e.item.name} — $${e.item.price} each`);
+    });
+    lines.push("");
+    lines.push(`Total: $${cartTotal.toFixed(2)}`);
+    lines.push("");
+    lines.push("Name: ");
+    lines.push("Pickup or delivery: ");
+    return lines.join("\n");
+  };
+
+  const sendOrderViaWhatsApp = () => {
+    if (!data.brand.whatsapp || cartEntries.length === 0) return;
+    const message = encodeURIComponent(buildWhatsAppMessage());
+    window.open(`https://wa.me/${data.brand.whatsapp}?text=${message}`, "_blank");
+  };
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: colors.ivory }}>
@@ -250,6 +317,10 @@ export default function App() {
         .limo-dish-body { flex:1; min-width:0; }
         .limo-dish-row { display:flex; justify-content:space-between; align-items:baseline; gap:14px; }
         @media (max-width: 480px) { .limo-dish-photo:not(.limo-dish-photo-empty) { width:56px; height:56px; } }
+        .limo-qty-btn { width:26px; height:26px; border-radius:50%; border:1px solid ${alpha('bottle', 0.3)}; background:#fff; color:${colors.bottle}; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; }
+        .limo-qty-btn:disabled { opacity:0.3; cursor:default; }
+        .limo-qty-btn:not(:disabled):hover { background:${colors.bottle}; color:${colors.ivory}; }
+        .limo-cart-fab { position:fixed; bottom:22px; right:22px; z-index:40; background:${colors.bottle}; color:${colors.ivory}; border:none; border-radius:999px; padding:12px 18px; display:flex; align-items:center; gap:8px; box-shadow:0 6px 18px rgba(0,0,0,0.25); cursor:pointer; font-family:${fonts.mono}; font-size:13px; }
         .limo-input { font-family:${fonts.body}; font-size:15px; padding:7px 9px; border:1px solid ${colors.bottle}44; border-radius:6px; background:#fff; color:${colors.ink}; width:100%; }
         .limo-btn { font-family:${fonts.mono}; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; padding:9px 16px; border-radius:8px; border:1px solid ${colors.bottle}; background:${colors.bottle}; color:${colors.ivory}; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
         .limo-btn.ghost { background:transparent; color:${colors.bottle}; }
@@ -370,6 +441,17 @@ export default function App() {
                           <span style={{ fontFamily: fonts.mono, fontSize: 15, color: colors.terracotta, whiteSpace: "nowrap" }}>${it.price}</span>
                         </div>
                         <p style={{ fontSize: 15, color: alpha('ink', 0.62), margin: "3px 0 0", maxWidth: "46ch" }}>{it.desc}</p>
+                        {data.brand.whatsapp && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
+                            <button className="limo-qty-btn" onClick={() => setQty(it.id, (cart[it.id] || 0) - 1)} disabled={!cart[it.id]} aria-label={`Remove one ${it.name}`}>
+                              <Minus size={13} />
+                            </button>
+                            <span style={{ fontFamily: fonts.mono, fontSize: 13, minWidth: 14, textAlign: "center" }}>{cart[it.id] || 0}</span>
+                            <button className="limo-qty-btn" onClick={() => setQty(it.id, (cart[it.id] || 0) + 1)} aria-label={`Add one ${it.name}`}>
+                              <Plus size={13} />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -430,8 +512,48 @@ export default function App() {
                 <Leaf size={11} style={{ verticalAlign: "middle", marginRight: 4 }} /> indicates a vegetarian dish. Please tell your server of any allergies.
               </p>
             </div>
+
+            {data.brand.whatsapp && cartEntries.length > 0 && (
+              <div id="order-summary" className="no-print" style={{ marginTop: 20, padding: 20, borderRadius: 12, background: "#fff", border: `1px solid ${alpha('bottle', 0.15)}` }}>
+                <h3 style={{ fontFamily: fonts.display, fontStyle: "italic", fontWeight: 600, fontSize: 22, margin: "0 0 14px" }}>Your Order</h3>
+                {cartEntries.map((e) => (
+                  <div key={e.item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px dotted ${alpha('bottle', 0.15)}` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontFamily: fonts.mono, fontSize: 13, color: alpha('ink', 0.55) }}>{e.qty}×</span>
+                      <span style={{ fontSize: 16 }}>{e.item.name}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                      <span style={{ fontFamily: fonts.mono, fontSize: 14, color: colors.terracotta }}>${(parseFloat(e.item.price) * e.qty).toFixed(2)}</span>
+                      <button onClick={() => setQty(e.item.id, 0)} style={{ background: "none", border: "none", cursor: "pointer", color: alpha('ink', 0.35) }} aria-label={`Remove ${e.item.name} from order`}>
+                        <X size={15} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 14, borderTop: `1px solid ${alpha('bottle', 0.2)}` }}>
+                  <span style={{ fontFamily: fonts.mono, fontSize: 13, textTransform: "uppercase", letterSpacing: "0.06em" }}>Total</span>
+                  <span style={{ fontFamily: fonts.mono, fontSize: 19, color: colors.bottle }}>${cartTotal.toFixed(2)}</span>
+                </div>
+                <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
+                  <button className="limo-btn" onClick={sendOrderViaWhatsApp}>
+                    <Send size={13} /> Send Order via WhatsApp
+                  </button>
+                  <button className="limo-btn ghost" onClick={clearCart}>Clear order</button>
+                </div>
+                <p style={{ fontSize: 12, color: alpha('ink', 0.45), fontStyle: "italic", marginTop: 12 }}>
+                  This opens WhatsApp with your order pre-filled — the restaurant confirms availability, pricing, and payment directly with you in the chat.
+                </p>
+              </div>
+            )}
           </div>
         )}
+
+        {view === "menu" && data.brand.whatsapp && cartCount > 0 && (
+          <button className="limo-cart-fab no-print" onClick={() => document.getElementById("order-summary")?.scrollIntoView({ behavior: "smooth" })}>
+            <ShoppingCart size={15} /> {cartCount} · ${cartTotal.toFixed(2)}
+          </button>
+        )}
+
 
         {/* ---------------- BRANDING ---------------- */}
         {view === "branding" && (
@@ -553,6 +675,9 @@ export default function App() {
                     </label>
                     <label style={{ fontSize: 12, color: alpha('ink', 0.6) }}>Website
                       <input className="limo-input" value={draft.brand.website} onChange={(e) => updateBrand("website", e.target.value)} />
+                    </label>
+                    <label style={{ fontSize: 12, color: alpha('ink', 0.6) }}>WhatsApp number (digits only, with country code — no + or spaces, e.g. 14165550182)
+                      <input className="limo-input" value={draft.brand.whatsapp || ""} onChange={(e) => updateBrand("whatsapp", e.target.value.replace(/[^0-9]/g, ""))} placeholder="Leave blank to hide ordering" />
                     </label>
                   </div>
                 </details>
