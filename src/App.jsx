@@ -6,6 +6,7 @@ import {
 import { supabase } from "./lib/supabaseClient";
 import { RESTAURANT_SLUG, STAFF_PIN } from "./config";
 import { colors, fonts, alpha, paletteLabels } from "./theme";
+import PrintButton from "./components/printButton";
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -259,7 +260,7 @@ export default function App() {
 
       <div className="limo-scope">
         {view !== "cover" && (
-          <div style={{ background: colors.bottleDeep, padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, position: "sticky", top: 0, zIndex: 30 }}>
+          <div className="no-print" style={{ background: colors.bottleDeep, padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, position: "sticky", top: 0, zIndex: 30 }}>
             <button onClick={() => setView("cover")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, padding: 0 }}>
               <LemonMark size={22} />
               <span style={{ fontFamily: fonts.display, fontStyle: "italic", fontWeight: 600, color: colors.ivory, fontSize: 18 }}>
@@ -297,6 +298,7 @@ export default function App() {
                 <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 26, flexWrap: "wrap" }}>
                   <button className="limo-btn" onClick={() => setView("menu")}><BookOpen size={13} /> View Menu</button>
                   <button className="limo-btn ghost" style={{ borderColor: colors.lemon, color: colors.lemon }} onClick={() => setView("branding")}><Palette size={13} /> Branding Kit</button>
+                  
                 </div>
               </div>
             </div>
@@ -322,7 +324,12 @@ export default function App() {
         {/* ---------------- MENU ---------------- */}
         {view === "menu" && (
           <div className="limo-fade" style={{ maxWidth: 780, margin: "0 auto", padding: "20px 24px 60px" }}>
-            <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "10px 0 26px", position: "sticky", top: 58, background: colors.ivory, zIndex: 10 }}>
+            {/* ---- PRINT BUTTON (visible only on screen) ---- */}
+            <div className="no-print" style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+            </div>
+
+            {/* ---- CATEGORY TABS (visible only on screen) ---- */}
+            <div className="no-print" style={{ display: "flex", gap: 8, overflowX: "auto", padding: "10px 0 26px", position: "sticky", top: 58, background: colors.ivory, zIndex: 10 }}>
               {data.categories.map((c) => (
                 <button key={c.id} className={`limo-cattab ${activeCat === c.id ? "active" : ""}`} onClick={() => setActiveCat(c.id)}>
                   {c.title}
@@ -330,46 +337,99 @@ export default function App() {
               ))}
             </div>
 
-            {activeCategory && (
-              <div key={activeCategory.id} className="limo-fade">
-                <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
-                  <span style={{ fontFamily: fonts.mono, fontSize: 12, color: colors.terracotta }}>{activeCategory.numeral}</span>
-                  <h2 style={{ fontFamily: fonts.display, fontStyle: "italic", fontWeight: 600, fontSize: "clamp(28px,5vw,38px)", color: colors.bottleDeep, margin: 0 }}>
-                    {activeCategory.title}
-                  </h2>
-                </div>
-                <p style={{ fontSize: 16, fontStyle: "italic", color: alpha('ink', 0.6), margin: "4px 0 26px", paddingLeft: 40 }}>{activeCategory.subtitle}</p>
-
-                {activeCategory.items.map((it) => (
-                  <div className="limo-dish" key={it.id}>
-                    {it.image ? (
-                      <img
-                        src={it.image}
-                        alt={it.name}
-                        className="limo-dish-photo"
-                        onError={(e) => { e.currentTarget.style.display = "none"; }}
-                      />
-                    ) : (
-                      <div className="limo-dish-photo limo-dish-photo-empty" aria-hidden="true" />
-                    )}
-                    <div className="limo-dish-body">
-                      <div className="limo-dish-row">
-                        <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>
-                          {it.name}
-                          {it.veg && <Leaf size={13} style={{ marginLeft: 8, verticalAlign: "middle", color: colors.bottle }} />}
-                        </h3>
-                        <span style={{ fontFamily: fonts.mono, fontSize: 15, color: colors.terracotta, whiteSpace: "nowrap" }}>${it.price}</span>
-                      </div>
-                      <p style={{ fontSize: 15, color: alpha('ink', 0.62), margin: "3px 0 0", maxWidth: "46ch" }}>{it.desc}</p>
-                    </div>
+            {/* ---- ACTIVE CATEGORY VIEW (visible only on screen) ---- */}
+            <div className="no-print">
+              {activeCategory && (
+                <div key={activeCategory.id} className="limo-fade">
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+                    <span style={{ fontFamily: fonts.mono, fontSize: 12, color: colors.terracotta }}>{activeCategory.numeral}</span>
+                    <h2 style={{ fontFamily: fonts.display, fontStyle: "italic", fontWeight: 600, fontSize: "clamp(28px,5vw,38px)", color: colors.bottleDeep, margin: 0 }}>
+                      {activeCategory.title}
+                    </h2>
                   </div>
-                ))}
-              </div>
-            )}
+                  <p style={{ fontSize: 16, fontStyle: "italic", color: alpha('ink', 0.6), margin: "4px 0 26px", paddingLeft: 40 }}>{activeCategory.subtitle}</p>
 
-            <p style={{ fontSize: 13.5, color: alpha('ink', 0.5), fontStyle: "italic", marginTop: 34, paddingTop: 16, borderTop: `1px solid ${alpha('bottle', 0.25)}` }}>
-              <Leaf size={11} style={{ verticalAlign: "middle", marginRight: 4 }} /> indicates a vegetarian dish. Please tell your server of any allergies.
-            </p>
+                  {activeCategory.items.map((it) => (
+                    <div className="limo-dish" key={it.id}>
+                      {it.image ? (
+                        <img
+                          src={it.image}
+                          alt={it.name}
+                          className="limo-dish-photo"
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        />
+                      ) : (
+                        <div className="limo-dish-photo limo-dish-photo-empty" aria-hidden="true" />
+                      )}
+                      <div className="limo-dish-body">
+                        <div className="limo-dish-row">
+                          <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>
+                            {it.name}
+                            {it.veg && <Leaf size={13} style={{ marginLeft: 8, verticalAlign: "middle", color: colors.bottle }} />}
+                          </h3>
+                          <span style={{ fontFamily: fonts.mono, fontSize: 15, color: colors.terracotta, whiteSpace: "nowrap" }}>${it.price}</span>
+                        </div>
+                        <p style={{ fontSize: 15, color: alpha('ink', 0.62), margin: "3px 0 0", maxWidth: "46ch" }}>{it.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ---- PRINT-ONLY FULL MENU (hidden on screen, visible when printing) ---- */}
+            <div className="print-only print-container">
+              {/* Header */}
+              <div className="print-header">
+                <h1>{data.brand.name}</h1>
+                <div className="tagline">{data.brand.tagline}</div>
+                <div className="est-line">{data.brand.estLine}</div>
+                <div className="meta">
+                  {data.brand.hours} · {data.brand.phone} · {data.brand.address}
+                </div>
+              </div>
+
+              {/* All Categories */}
+              {data.categories.map((cat, index) => (
+                <div 
+                  key={cat.id} 
+                  className={`print-category ${index < data.categories.length - 1 ? 'print-category-break' : ''}`}
+                >
+                  <h2>
+                    <span style={{ fontFamily: fonts.mono, fontSize: 14, color: colors.terracotta, marginRight: 10 }}>
+                      {cat.numeral}
+                    </span>
+                    {cat.title}
+                  </h2>
+                  <div className="subtitle">{cat.subtitle}</div>
+                  
+                  {cat.items.map((it) => (
+                    <div className="print-item-wrapper" key={it.id}>
+                      <div className="print-item">
+                        <span className="name">
+                          {it.name}
+                          {it.veg && <span className="veg">🌿</span>}
+                        </span>
+                        <span className="price">${it.price}</span>
+                      </div>
+                      <div className="desc">{it.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+
+              {/* Footer */}
+              <div className="print-footer">
+                {data.brand.website} · {data.brand.instagram}
+              </div>
+            </div>
+
+            {/* ---- VEGETARIAN NOTE (visible on screen only) ---- */}
+            <div className="no-print">
+              <p style={{ fontSize: 13.5, color: alpha('ink', 0.5), fontStyle: "italic", marginTop: 34, paddingTop: 16, borderTop: `1px solid ${alpha('bottle', 0.25)}` }}>
+                <Leaf size={11} style={{ verticalAlign: "middle", marginRight: 4 }} /> indicates a vegetarian dish. Please tell your server of any allergies.
+              </p>
+            </div>
           </div>
         )}
 
@@ -459,6 +519,7 @@ export default function App() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 24 }}>
                   <h2 style={{ fontFamily: fonts.display, fontStyle: "italic", fontSize: 28, margin: 0 }}>Menu Editor</h2>
                   <div style={{ display: "flex", gap: 8 }}>
+                    <PrintButton data={data} />
                     <button className="limo-btn ghost" onClick={resetDraft}><RotateCcw size={13} /> Discard changes</button>
                     <button className="limo-btn" onClick={saveDraft}>
                       {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? <><Check size={13} /> Saved</> : <><Save size={13} /> Save changes</>}

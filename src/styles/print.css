@@ -1,0 +1,217 @@
+/* ============================================
+   PRINT STYLES - for PDF export
+   ============================================ */
+
+/* --- Hide screen-only elements when printing --- */
+@media print {
+    /* Hide navigation, buttons, tabs, interactive elements */
+    .no-print {
+      display: none !important;
+    }
+  
+    /* Show print-only elements */
+    .print-only {
+      display: block !important;
+    }
+  
+    /* --- Page setup --- */
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+  
+    /* --- Body styles --- */
+    body {
+      background: #FBF3DE !important;
+      color: #241F16 !important;
+      font-family: 'Cormorant Garamond', serif !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  
+    /* --- Print container --- */
+    .print-container {
+      max-width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+  
+    /* --- Category cards --- */
+    .print-category {
+      page-break-inside: avoid;
+      margin-bottom: 30px;
+      padding: 0;
+      background: transparent !important;
+      border: none !important;
+    }
+  
+    /* --- Page break between major sections --- */
+    .print-category-break {
+      page-break-after: always;
+    }
+  
+    /* --- Category header --- */
+    .print-category h2 {
+      font-family: 'Fraunces', serif !important;
+      font-style: italic !important;
+      font-weight: 600 !important;
+      font-size: 24px !important;
+      color: #142A20 !important;
+      margin: 0 0 4px 0 !important;
+      padding-top: 10px;
+    }
+  
+    .print-category .subtitle {
+      font-family: 'Cormorant Garamond', serif !important;
+      font-size: 16px !important;
+      font-style: italic !important;
+      color: #241F16 !important;
+      opacity: 0.7;
+      margin: 0 0 16px 0 !important;
+    }
+  
+    /* --- Dish items --- */
+    .print-item-wrapper {
+      display: block;
+      padding: 6px 0;
+      border-bottom: 1px dotted #1F3D2E33;
+    }
+  
+    .print-item-wrapper:last-child {
+      border-bottom: none;
+    }
+  
+    .print-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+  
+    .print-item .name {
+      font-family: 'Cormorant Garamond', serif !important;
+      font-size: 16px !important;
+      font-weight: 500 !important;
+      color: #241F16 !important;
+    }
+  
+    .print-item .veg {
+      color: #1F3D2E !important;
+      margin-left: 4px;
+      font-size: 12px;
+    }
+  
+    .print-item .price {
+      font-family: 'Space Mono', monospace !important;
+      font-size: 14px !important;
+      color: #C4602F !important;
+      white-space: nowrap;
+      margin-left: 20px;
+    }
+  
+    .print-item .desc {
+      font-family: 'Cormorant Garamond', serif !important;
+      font-size: 14px !important;
+      color: #241F16 !important;
+      opacity: 0.75;
+      margin: 2px 0 0 0 !important;
+      padding-left: 0;
+    }
+  
+    /* --- Header --- */
+    .print-header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #1F3D2E;
+    }
+  
+    .print-header h1 {
+      font-family: 'Fraunces', serif !important;
+      font-style: italic !important;
+      font-weight: 600 !important;
+      font-size: 38px !important;
+      color: #142A20 !important;
+      margin: 0 !important;
+    }
+  
+    .print-header .tagline {
+      font-family: 'Cormorant Garamond', serif !important;
+      font-size: 18px !important;
+      font-style: italic !important;
+      color: #241F16 !important;
+      opacity: 0.8;
+      margin: 4px 0 !important;
+    }
+  
+    .print-header .est-line {
+      font-family: 'Cormorant Garamond', serif !important;
+      font-size: 15px !important;
+      font-style: italic !important;
+      color: #241F16 !important;
+      opacity: 0.6;
+      margin: 2px 0 !important;
+    }
+  
+    .print-header .meta {
+      font-family: 'Space Mono', monospace !important;
+      font-size: 10px !important;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #241F16 !important;
+      opacity: 0.5;
+      margin-top: 8px;
+      line-height: 1.8;
+    }
+  
+    /* --- Footer --- */
+    .print-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #1F3D2E;
+      text-align: center;
+      font-family: 'Space Mono', monospace !important;
+      font-size: 10px !important;
+      letter-spacing: 0.05em;
+      color: #241F16 !important;
+      opacity: 0.5;
+    }
+  
+    /* --- Keep images if any --- */
+    .print-item-image {
+      max-width: 100px;
+      height: auto;
+      border-radius: 6px;
+      margin-right: 16px;
+      float: left;
+    }
+  
+    /* --- Avoid orphan items --- */
+    .print-category:last-child {
+      page-break-after: avoid;
+    }
+  
+    /* --- Clear floats --- */
+    .print-clearfix::after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+  }
+  
+  /* --- Hide print-only elements on screen --- */
+  @media screen {
+    .print-only {
+      display: none !important;
+    }
+  }
+  
+  /* --- Small screen adjustments for print preview --- */
+  @media screen and (max-width: 480px) {
+    .print-button-wrapper {
+      width: 100%;
+    }
+    .print-button-wrapper button {
+      width: 100%;
+      justify-content: center;
+    }
+  }

@@ -31,17 +31,12 @@ export const paletteLabels = {
 };
 
 export const fonts = {
-  display: "'Fraunces', serif",       // logo, headings — italic display serif
-  body: "'Cormorant Garamond', serif", // dish descriptions, body copy
-  mono: "'Space Mono', monospace",     // prices, labels, utility text
+  display: "'Fraunces', serif",      
+  body: "'Cormorant Garamond', serif",
+  mono: "'Space Mono', monospace",    
 };
 
-// The Google Fonts <link> in index.html must match whatever font
-// families you reference above. If you change fonts for a client,
-// update the href in index.html to load the new family too.
 
-// Converts a theme color name + opacity into an rgba() string,
-// e.g. alpha('ink', 0.6) -> "rgba(36,31,22,0.6)"
 function hexToRgb(hex) {
   const clean = hex.replace("#", "");
   const r = parseInt(clean.substring(0, 2), 16);
