@@ -16,7 +16,7 @@ export default function PrintButton({ data }) {
     iframe.style.border = "none";
     document.body.appendChild(iframe);
     
-    // Build the menu HTML - COMPACT SINGLE PAGE VERSION
+    // Build the menu HTML - WITH IMAGES
     const doc = iframe.contentWindow.document;
     doc.open();
     doc.write(`
@@ -31,7 +31,7 @@ export default function PrintButton({ data }) {
             /* --- Reset --- */
             * { margin: 0; padding: 0; box-sizing: border-box; }
             
-            /* --- Page setup - SINGLE PAGE --- */
+            /* --- Page setup --- */
             @page {
               size: A4 portrait;
               margin: 8mm 10mm;
@@ -134,15 +134,38 @@ export default function PrintButton({ data }) {
               margin: 0 0 3px 0;
             }
             
-            /* --- Dish items - COMPACT --- */
+            /* --- Dish items with image support --- */
             .print-item-wrapper {
-              display: block;
-              padding: 2px 0;
+              display: flex;
+              gap: 8px;
+              padding: 3px 0;
               border-bottom: 1px dotted #1F3D2E22;
+              align-items: flex-start;
             }
             
             .print-item-wrapper:last-child {
               border-bottom: none;
+            }
+            
+            .print-item-image {
+              width: 40px;
+              height: 40px;
+              object-fit: cover;
+              border-radius: 6px;
+              flex-shrink: 0;
+              background: #1F3D2E11;
+            }
+            
+            .print-item-image-empty {
+              width: 40px;
+              height: 40px;
+              flex-shrink: 0;
+              display: none;
+            }
+            
+            .print-item-content {
+              flex: 1;
+              min-width: 0;
             }
             
             .print-item {
@@ -179,11 +202,10 @@ export default function PrintButton({ data }) {
               color: #241F16;
               opacity: 0.7;
               margin: 0 0 1px 0;
-              padding-left: 0;
               line-height: 1.2;
             }
             
-            /* --- Footer - COMPACT --- */
+            /* --- Footer --- */
             .print-footer {
               margin-top: 8px;
               padding-top: 6px;
@@ -196,7 +218,6 @@ export default function PrintButton({ data }) {
               opacity: 0.4;
             }
             
-            /* --- Vegetarian note --- */
             .veg-note {
               font-size: 7.5px;
               font-style: italic;
@@ -208,7 +229,6 @@ export default function PrintButton({ data }) {
               text-align: center;
             }
             
-            /* --- Numeral styling --- */
             .numeral {
               font-family: 'Space Mono', monospace;
               font-size: 10px;
@@ -216,20 +236,10 @@ export default function PrintButton({ data }) {
               margin-right: 4px;
             }
             
-            /* --- Single column for small categories --- */
-            .print-category-items {
-              display: block;
-            }
-            
             /* --- Ensure everything fits --- */
             @media print {
-              body { 
-                margin: 0;
-                padding: 0;
-              }
-              .print-container {
-                max-width: 100%;
-              }
+              body { margin: 0; padding: 0; }
+              .print-container { max-width: 100%; }
             }
             
             /* --- If content is too long, allow smaller font --- */
@@ -239,12 +249,13 @@ export default function PrintButton({ data }) {
               .print-item .name { font-size: 9px; }
               .print-item .desc { font-size: 8px; }
               .print-category h2 { font-size: 12px; }
+              .print-item-image { width: 32px; height: 32px; }
             }
           </style>
         </head>
         <body>
           <div class="print-container">
-            <!-- HEADER - COMPACT -->
+            <!-- HEADER -->
             <div class="print-header">
               <h1>${data.brand.name}</h1>
               <div class="tagline">${data.brand.tagline}</div>
@@ -263,25 +274,40 @@ export default function PrintButton({ data }) {
                     ${cat.title}
                   </h2>
                   <div class="subtitle">${cat.subtitle}</div>
-                  <div class="print-category-items">
-                    ${cat.items.map(item => `
+                  ${cat.items.map(item => {
+                    // Check if item has an image
+                    const hasImage = item.image && item.image.trim() !== '';
+                    return `
                       <div class="print-item-wrapper">
-                        <div class="print-item">
-                          <span class="name">
-                            ${item.name}
-                            ${item.veg ? '<span class="veg">🌿</span>' : ''}
-                          </span>
-                          <span class="price">$${item.price}</span>
+                        ${hasImage ? `
+                          <img 
+                            src="${item.image}" 
+                            alt="${item.name}" 
+                            class="print-item-image"
+                            onerror="this.style.display='none'"
+                            loading="lazy"
+                          />
+                        ` : `
+                          <div class="print-item-image-empty"></div>
+                        `}
+                        <div class="print-item-content">
+                          <div class="print-item">
+                            <span class="name">
+                              ${item.name}
+                              ${item.veg ? '<span class="veg">🌿</span>' : ''}
+                            </span>
+                            <span class="price">$${item.price}</span>
+                          </div>
+                          <div class="desc">${item.desc}</div>
                         </div>
-                        <div class="desc">${item.desc}</div>
                       </div>
-                    `).join('')}
-                  </div>
+                    `;
+                  }).join('')}
                 </div>
               `).join('')}
             </div>
 
-            <!-- FOOTER - COMPACT -->
+            <!-- FOOTER -->
             <div class="print-footer">
               ${data.brand.website} · ${data.brand.instagram}
             </div>
@@ -295,7 +321,7 @@ export default function PrintButton({ data }) {
     `);
     doc.close();
 
-    // Wait for fonts to load, then print
+    // Wait for images and fonts to load, then print
     setTimeout(() => {
       iframe.contentWindow.focus();
       iframe.contentWindow.print();
@@ -305,7 +331,7 @@ export default function PrintButton({ data }) {
         document.body.removeChild(iframe);
         setIsPreparing(false);
       }, 1000);
-    }, 500);
+    }, 1000); // Increased timeout to allow images to load
   };
 
   return (
@@ -331,7 +357,7 @@ export default function PrintButton({ data }) {
       }}
     >
       <Printer size={13} />
-      {isPreparing ? "Preparing..." : "Download PDF"}
+      {isPreparing ? "Loading images..." : "Download PDF"}
     </button>
   );
 }
